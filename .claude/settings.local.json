@@ -19,7 +19,8 @@
       "Bash(mv:*)",
       "Bash(npx lint-staged:*)",
       "Bash(chmod:*)",
-      "Bash(./scripts/lint-server.sh:*)"
+      "Bash(./scripts/lint-server.sh:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   }

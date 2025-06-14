@@ -46,6 +46,16 @@ npm run preview      # Preview production build
 - ESLint is configured for both projects with TypeScript support
 - Server includes Prettier for code formatting
 
+### Logging System
+- **Centralized logging** with Winston + Loki integration
+- **Structured JSON logging** with consistent metadata
+- **HTTP request/response logging** with request IDs for tracing
+- **Automatic error tracking** with stack traces
+- **Method-level logging** using `@Log()` decorator
+- **Sensitive data sanitization** (passwords, tokens, etc.)
+- **Multi-transport support** (console + Loki)
+- **Environment-based configuration** via LOG_LEVEL env var
+
 ## Infrastructure Services
 
 The project includes a Docker Compose setup with the following services:
