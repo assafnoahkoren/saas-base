@@ -66,6 +66,15 @@ The project includes a Docker Compose setup with the following services:
   - SMTP: port 1025
   - Web UI: http://localhost:8025
 
+### Logging & Monitoring (Loki Stack)
+- **Loki**: Log aggregation system (port 3100)
+  - API: http://localhost:3100
+- **Grafana**: Visualization and dashboards (port 3000)
+  - Web UI: http://localhost:3000 (admin/admin)
+- **Promtail**: Log collection agent
+  - Collects container logs and system logs
+  - Forwards to Loki for storage and querying
+
 ### Running Services
 ```bash
 # Start all services
