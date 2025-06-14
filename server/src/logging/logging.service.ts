@@ -1,6 +1,5 @@
 import { Injectable, LoggerService } from '@nestjs/common';
 import { createLogger, Logger, format, transports } from 'winston';
-import LokiTransport from 'winston-loki';
 import { AppConfigService } from '../config/config.service';
 import {
   LogLevel,
@@ -49,6 +48,9 @@ export class LoggingService implements LoggerService {
     // Add Loki transport if not in test mode and Loki URL is configured
     if (!this.configService.isTest && this.configService.lokiUrl) {
       try {
+        // Use require for winston-loki as it's a CommonJS module
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const LokiTransport = require('winston-loki');
         const lokiTransport = new LokiTransport({
           host: this.configService.lokiUrl,
           labels: {

@@ -20,7 +20,8 @@
       "Bash(npx lint-staged:*)",
       "Bash(chmod:*)",
       "Bash(./scripts/lint-server.sh:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(timeout 3s npm run dev:*)"
     ],
     "deny": []
   }
