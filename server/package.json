@@ -12,6 +12,7 @@
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "repl": "nest start --entryFile repl",
     "lint": "cd .. && npm run lint",
     "test": "jest",
     "test:watch": "jest --watch",
