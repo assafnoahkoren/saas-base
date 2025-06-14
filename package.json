@@ -22,11 +22,11 @@
   },
   "lint-staged": {
     "server/**/*.{ts,js}": [
-      "cd server && npm run lint",
+      "bash -c 'cd server && npx eslint $(echo \"$0\" | sed \"s|.*/server/||g\") --fix'",
       "prettier --write"
     ],
     "webapp/**/*.{ts,tsx,js}": [
-      "cd webapp && npm run lint",
+      "bash -c 'cd webapp && npx eslint $(echo \"$0\" | sed \"s|.*/webapp/||g\") --fix'",
       "prettier --write"
     ]
   },

@@ -5,4 +5,7 @@ async function bootstrap() {
   await repl(AppModule);
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('REPL failed to start:', error);
+  process.exit(1);
+});
