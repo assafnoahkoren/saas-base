@@ -54,7 +54,12 @@ npm run preview      # Preview production build
 - **Method-level logging** using `@Log()` decorator
 - **Sensitive data sanitization** (passwords, tokens, etc.)
 - **Multi-transport support** (console + Loki)
-- **Environment-based configuration** via LOG_LEVEL env var
+- **Error-level failsafe** - Error logs always go to console regardless of settings
+- **Environment-based configuration**:
+  - `LOG_LEVEL` - Controls logging verbosity (debug, info, warn, error)
+  - `ENABLE_CONSOLE_LOGGER` - Enables/disables console output (true/false)
+    - When `true`: All log levels go to console
+    - When `false`: Only error level logs go to console
 
 ## Infrastructure Services
 

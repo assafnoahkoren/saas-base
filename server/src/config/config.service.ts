@@ -122,6 +122,10 @@ export class AppConfigService extends ConfigService {
     return this.get<string>('LOG_LEVEL') || 'debug';
   }
 
+  get enableConsoleLogger(): boolean {
+    return this.get<string>('ENABLE_CONSOLE_LOGGER') === 'true';
+  }
+
   get isDevelopment(): boolean {
     return this.nodeEnv === 'development';
   }

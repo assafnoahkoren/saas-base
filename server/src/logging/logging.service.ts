@@ -20,30 +20,58 @@ export class LoggingService implements LoggerService {
   private createLogger(): Logger {
     const transportsList: any[] = [];
 
-    // Always add console transport for development visibility
-    const consoleTransport = new transports.Console({
-      format: format.combine(
-        format.timestamp(),
-        format.errors({ stack: true }),
-        format.colorize(),
-        format.printf(
-          ({ timestamp, level, message, service, component, ...meta }) => {
-            const serviceStr = String(service);
-            const componentStr =
-              typeof component === 'string' ? component : undefined;
-            const contextInfo = componentStr
-              ? `[${serviceStr}:${componentStr}]`
-              : `[${serviceStr}]`;
-            const metaStr = Object.keys(meta).length
-              ? JSON.stringify(meta, null, 2)
-              : '';
-            return `${String(timestamp)} ${String(level)} ${contextInfo} ${String(message)} ${metaStr}`;
-          },
+    // Add console transport if enabled via configuration or for error logging
+    if (this.configService.enableConsoleLogger) {
+      const consoleTransport = new transports.Console({
+        format: format.combine(
+          format.timestamp(),
+          format.errors({ stack: true }),
+          format.colorize(),
+          format.printf(
+            ({ timestamp, level, message, service, component, ...meta }) => {
+              const serviceStr = String(service);
+              const componentStr =
+                typeof component === 'string' ? component : undefined;
+              const contextInfo = componentStr
+                ? `[${serviceStr}:${componentStr}]`
+                : `[${serviceStr}]`;
+              const metaStr = Object.keys(meta).length
+                ? JSON.stringify(meta, null, 2)
+                : '';
+              return `${String(timestamp)} ${String(level)} ${contextInfo} ${String(message)} ${metaStr}`;
+            },
+          ),
         ),
-      ),
-    });
+      });
 
-    transportsList.push(consoleTransport);
+      transportsList.push(consoleTransport);
+    } else {
+      // Even if console logging is disabled, always log errors to console
+      const errorConsoleTransport = new transports.Console({
+        level: 'error',
+        format: format.combine(
+          format.timestamp(),
+          format.errors({ stack: true }),
+          format.colorize(),
+          format.printf(
+            ({ timestamp, level, message, service, component, ...meta }) => {
+              const serviceStr = String(service);
+              const componentStr =
+                typeof component === 'string' ? component : undefined;
+              const contextInfo = componentStr
+                ? `[${serviceStr}:${componentStr}]`
+                : `[${serviceStr}]`;
+              const metaStr = Object.keys(meta).length
+                ? JSON.stringify(meta, null, 2)
+                : '';
+              return `${String(timestamp)} ${String(level)} ${contextInfo} ${String(message)} ${metaStr}`;
+            },
+          ),
+        ),
+      });
+
+      transportsList.push(errorConsoleTransport);
+    }
 
     // Add Loki transport if not in test mode and Loki URL is configured
     if (!this.configService.isTest && this.configService.lokiUrl) {
@@ -77,6 +105,18 @@ export class LoggingService implements LoggerService {
           'Running without Loki transport - logs will only appear in console',
         );
       }
+    }
+
+    // This should rarely happen now since we always have error console transport
+    if (transportsList.length === 0) {
+      console.warn(
+        'No logging transports configured, adding emergency console transport',
+      );
+      transportsList.push(
+        new transports.Console({
+          format: format.simple(),
+        }),
+      );
     }
 
     return createLogger({
