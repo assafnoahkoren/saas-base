@@ -22,10 +22,10 @@ export function Log(options?: {
     target: any,
     propertyName: string,
     descriptor: PropertyDescriptor,
-  ) {
+  ): PropertyDescriptor {
     const method = descriptor.value;
 
-    descriptor.value = async function (this: any, ...args: any[]) {
+    descriptor.value = function (this: any, ...args: any[]): any {
       // Get logger instance - assumes the class has a logger property
       const logger: LoggingService = this.logger || this.loggingService;
 
@@ -33,6 +33,7 @@ export function Log(options?: {
         console.warn(
           `@Log decorator used on ${target.constructor.name}.${propertyName} but no logger found. Inject LoggingService as 'logger' or 'loggingService'.`,
         );
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return method.apply(this, args);
       }
 
@@ -65,8 +66,7 @@ export function Log(options?: {
         );
       }
 
-      try {
-        const result = await method.apply(this, args);
+      const handleResult = (result: any): any => {
         const duration = Date.now() - startTime;
 
         const successMetadata: LogMetadata = {
@@ -96,7 +96,9 @@ export function Log(options?: {
         }
 
         return result;
-      } catch (error: unknown) {
+      };
+
+      const handleError = (error: unknown): never => {
         const duration = Date.now() - startTime;
         const errorObj = error as Error;
 
@@ -117,6 +119,21 @@ export function Log(options?: {
         );
 
         throw error;
+      };
+
+      try {
+        const result = method.apply(this, args);
+
+        // Handle both sync and async methods
+        if (result && typeof result.then === 'function') {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+          return result.then(handleResult).catch(handleError);
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+          return handleResult(result);
+        }
+      } catch (error: unknown) {
+        return handleError(error);
       }
     };
 
