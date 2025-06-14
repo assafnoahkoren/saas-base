@@ -2,7 +2,17 @@
   "permissions": {
     "allow": [
       "Bash(npm install)",
-      "mcp__docfork__get-library-docs"
+      "mcp__docfork__get-library-docs",
+      "Bash(rm:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run format:check:*)",
+      "Bash(npm run prepare:*)",
+      "Bash(npx husky:*)",
+      "Bash(ls:*)",
+      "Bash(git add:*)",
+      "Bash(git reset:*)",
+      "Bash(git checkout:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }

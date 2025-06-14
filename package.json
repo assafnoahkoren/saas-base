@@ -1,0 +1,44 @@
+{
+  "name": "saas-base",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:server": "cd server && npm run dev",
+    "dev:webapp": "cd webapp && npm run dev",
+    "build:server": "cd server && npm run build",
+    "build:webapp": "cd webapp && npm run build",
+    "build": "npm run build:server && npm run build:webapp",
+    "lint": "eslint server webapp --fix",
+    "lint:check": "eslint server webapp",
+    "lint:staged": "lint-staged",
+    "format": "prettier --write \"server/src/**/*.{ts,js}\" \"server/test/**/*.{ts,js}\" \"webapp/src/**/*.{ts,tsx,js}\" \"webapp/*.{ts,js}\"",
+    "format:check": "prettier --check \"server/src/**/*.{ts,js}\" \"server/test/**/*.{ts,js}\" \"webapp/src/**/*.{ts,tsx,js}\" \"webapp/*.{ts,js}\"",
+    "test:server": "cd server && npm run test",
+    "test:webapp": "cd webapp && npm run test",
+    "install:all": "npm install && cd server && npm install && cd ../webapp && npm install",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "server/**/*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "webapp/**/*.{ts,tsx,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.0",
+    "eslint": "^9.25.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.2",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.0",
+    "prettier": "^3.4.2",
+    "typescript-eslint": "^8.30.1"
+  }
+}
