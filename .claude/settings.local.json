@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "mcp__docfork__get-library-docs"
+    ],
+    "deny": []
+  }
+}
