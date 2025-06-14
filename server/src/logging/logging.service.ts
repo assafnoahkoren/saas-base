@@ -77,8 +77,9 @@ export class LoggingService implements LoggerService {
     if (!this.configService.isTest && this.configService.lokiUrl) {
       try {
         // Use require for winston-loki as it's a CommonJS module
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
         const LokiTransport = require('winston-loki');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
         const lokiTransport = new LokiTransport({
           host: this.configService.lokiUrl,
           labels: {

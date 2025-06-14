@@ -23,21 +23,27 @@ export function Log(options?: {
     propertyName: string,
     descriptor: PropertyDescriptor,
   ): PropertyDescriptor {
-    const method = descriptor.value;
+    const method = descriptor.value as (...args: any[]) => any;
 
-    descriptor.value = function (this: any, ...args: any[]): any {
+    descriptor.value = function (
+      this: { logger?: LoggingService; loggingService?: LoggingService },
+      ...args: any[]
+    ): any {
       // Get logger instance - assumes the class has a logger property
-      const logger: LoggingService = this.logger || this.loggingService;
+      const logger: LoggingService | undefined =
+        this.logger || this.loggingService;
 
       if (!logger) {
         console.warn(
-          `@Log decorator used on ${target.constructor.name}.${propertyName} but no logger found. Inject LoggingService as 'logger' or 'loggingService'.`,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          `@Log decorator used on ${(target.constructor as { name: string }).name}.${propertyName} but no logger found. Inject LoggingService as 'logger' or 'loggingService'.`,
         );
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return method.apply(this, args);
       }
 
-      const className = target.constructor.name;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const className = (target.constructor as { name: string }).name;
       const startTime = Date.now();
 
       const metadata: LogMetadata = {
@@ -59,11 +65,15 @@ export function Log(options?: {
           metadata,
         );
       } else {
-        (logger as any)[logLevel](
-          `Method ${className}.${propertyName} started`,
-          className,
-          metadata,
-        );
+        const logMethod = logger[logLevel];
+        if (typeof logMethod === 'function') {
+          logMethod.call(
+            logger,
+            `Method ${className}.${propertyName} started`,
+            className,
+            metadata,
+          );
+        }
       }
 
       const handleResult = (result: any): any => {
@@ -88,11 +98,15 @@ export function Log(options?: {
             successMetadata,
           );
         } else {
-          (logger as any)[logLevel](
-            `Method ${className}.${propertyName} completed successfully in ${duration}ms`,
-            className,
-            successMetadata,
-          );
+          const logMethod = logger[logLevel];
+          if (typeof logMethod === 'function') {
+            logMethod.call(
+              logger,
+              `Method ${className}.${propertyName} completed successfully in ${duration}ms`,
+              className,
+              successMetadata,
+            );
+          }
         }
 
         return result;
@@ -122,11 +136,13 @@ export function Log(options?: {
       };
 
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const result = method.apply(this, args);
 
         // Handle both sync and async methods
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (result && typeof result.then === 'function') {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
           return result.then(handleResult).catch(handleError);
         } else {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-return

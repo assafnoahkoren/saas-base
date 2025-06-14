@@ -30,6 +30,7 @@ export class LoggingInterceptor implements NestInterceptor {
     // Add request ID to request object for later use
     request.requestId = requestId;
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { method, url, headers, body, query, params } = request;
     const userAgent = headers['user-agent'] || '';
     const ip = request.ip || request.connection.remoteAddress || '';
