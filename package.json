@@ -8,8 +8,10 @@
     "build:server": "cd server && npm run build",
     "build:webapp": "cd webapp && npm run build",
     "build": "npm run build:server && npm run build:webapp",
-    "lint": "eslint server webapp --fix",
-    "lint:check": "eslint server webapp",
+    "lint:server": "cd server && npm run lint",
+    "lint:webapp": "cd webapp && npm run lint",
+    "lint": "npm run lint:server && npm run lint:webapp",
+    "lint:check": "cd server && npm run lint:check && cd ../webapp && npm run lint:check",
     "lint:staged": "lint-staged",
     "format": "prettier --write \"server/src/**/*.{ts,js}\" \"server/test/**/*.{ts,js}\" \"webapp/src/**/*.{ts,tsx,js}\" \"webapp/*.{ts,js}\"",
     "format:check": "prettier --check \"server/src/**/*.{ts,js}\" \"server/test/**/*.{ts,js}\" \"webapp/src/**/*.{ts,tsx,js}\" \"webapp/*.{ts,js}\"",
@@ -20,25 +22,17 @@
   },
   "lint-staged": {
     "server/**/*.{ts,js}": [
-      "eslint --fix",
+      "cd server && npm run lint",
       "prettier --write"
     ],
     "webapp/**/*.{ts,tsx,js}": [
-      "eslint --fix",
+      "cd webapp && npm run lint",
       "prettier --write"
     ]
   },
   "devDependencies": {
-    "@eslint/js": "^9.25.0",
-    "eslint": "^9.25.0",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-prettier": "^5.2.2",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.19",
-    "globals": "^16.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.0",
-    "prettier": "^3.4.2",
-    "typescript-eslint": "^8.30.1"
+    "prettier": "^3.4.2"
   }
 }

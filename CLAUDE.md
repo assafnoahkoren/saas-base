@@ -102,6 +102,29 @@ When working on tasks in this codebase, follow these guidelines:
    - Server unit tests: `cd server && npm run test`
    - Server e2e tests: `cd server && npm run test:e2e`
 
+### Linting Guidelines
+**IMPORTANT**: When encountering linting errors, NEVER disable linting rules with eslint-disable comments. Instead:
+
+1. **Fix the actual issue** by:
+   - Creating proper TypeScript type definitions for untyped modules
+   - Using proper imports/exports (e.g., use `esModuleInterop` in tsconfig.json for CommonJS modules)
+   - Adding missing type annotations
+   - Refactoring code to be type-safe
+
+2. **If needed, modify tsconfig.json** to enable proper module handling:
+   - Add `"esModuleInterop": true` for CommonJS module imports
+   - Adjust `"strict"` settings if absolutely necessary
+   - Use `"allowSyntheticDefaultImports": true` for default imports
+
+3. **For third-party modules without types**:
+   - Check if `@types/package-name` exists
+   - If not, create a type declaration file in `src/types/package-name.d.ts`
+
+4. **Each package has its own ESLint configuration**:
+   - Server: `/server/eslint.config.mjs`
+   - Webapp: `/webapp/eslint.config.mjs`
+   - Modify these configs only when adding new plugins or adjusting project-wide rules
+
 ### Development Tools
 1. **Use REPL for debugging/exploration**:
    - Server: `cd server && npm run repl`

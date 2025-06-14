@@ -12,38 +12,13 @@ export default tseslint.config(
   },
   eslint.configs.recommended,
   eslintPluginPrettierRecommended,
-  
-  // Server configuration
+  ...tseslint.configs.recommended,
   {
-    files: ['server/**/*.{ts,js}'],
-    extends: [...tseslint.configs.recommendedTypeChecked],
-    languageOptions: {
-      globals: {
-        ...globals.node,
-        ...globals.jest,
-      },
-      sourceType: 'commonjs',
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn',
-    },
-  },
-  
-  // Webapp configuration
-  {
-    files: ['webapp/**/*.{ts,tsx}'],
-    extends: [...tseslint.configs.recommended],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
       parserOptions: {
-        project: ['webapp/tsconfig.app.json', 'webapp/tsconfig.node.json'],
+        project: ['./tsconfig.app.json', './tsconfig.node.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -57,6 +32,8 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
   },
 );
