@@ -46,6 +46,40 @@ npm run preview      # Preview production build
 - ESLint is configured for both projects with TypeScript support
 - Server includes Prettier for code formatting
 
+## Infrastructure Services
+
+The project includes a Docker Compose setup with the following services:
+
+### Database & Storage
+- **PostgreSQL**: Main database (port 5432)
+  - Database: `saas_dev`
+  - User/Password: `postgres/postgres`
+- **Redis**: Caching and session storage (port 6379)
+
+### Message Queue
+- **RabbitMQ**: Message broker (ports 5672, 15672)
+  - AMQP: port 5672
+  - Management UI: http://localhost:15672 (admin/admin)
+
+### Development Tools
+- **MailHog**: Email testing (ports 1025, 8025)
+  - SMTP: port 1025
+  - Web UI: http://localhost:8025
+
+### Running Services
+```bash
+# Start all services
+docker-compose up -d
+
+# Stop all services
+docker-compose down
+
+# View logs
+docker-compose logs [service_name]
+```
+
+All service credentials and connection strings are available in `server/.env`.
+
 ## Testing
 
 - Server: Jest with ts-jest transformer, separate configs for unit tests (default) and e2e tests
