@@ -6,53 +6,75 @@ import {
 } from 'react-router-dom';
 import { QueryProvider } from './providers/QueryProvider';
 import { MantineProvider } from './providers/MantineProvider';
+import { AuthProvider } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { RegisterPage } from './pages/RegisterPage';
+import { LoginPage } from './pages/LoginPage';
 import { EmailVerificationPage } from './pages/EmailVerificationPage';
+import { DashboardPage } from './pages/DashboardPage';
 import './App.css';
 
 function App() {
   return (
     <QueryProvider>
       <MantineProvider>
-        <Router>
-          <div className="App">
-            <Routes>
-              {/* Redirect root to register for now */}
-              <Route path="/" element={<Navigate to="/register" replace />} />
+        <AuthProvider>
+          <Router>
+            <div className="App">
+              <Routes>
+                {/* Redirect root to dashboard */}
+                <Route
+                  path="/"
+                  element={<Navigate to="/dashboard" replace />}
+                />
 
-              {/* Auth routes */}
-              <Route path="/register" element={<RegisterPage />} />
+                {/* Public auth routes */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route
+                  path="/verify-email/:token"
+                  element={<EmailVerificationPage />}
+                />
 
-              {/* Placeholder for other routes */}
-              <Route
-                path="/login"
-                element={
-                  <div className="p-8 text-center">
-                    Login page coming soon...
-                  </div>
-                }
-              />
-              <Route
-                path="/verify-email/:token"
-                element={<EmailVerificationPage />}
-              />
-              <Route
-                path="/dashboard"
-                element={
-                  <div className="p-8 text-center">
-                    Dashboard coming soon...
-                  </div>
-                }
-              />
+                {/* Protected routes */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* 404 page */}
-              <Route
-                path="*"
-                element={<div className="p-8 text-center">Page not found</div>}
-              />
-            </Routes>
-          </div>
-        </Router>
+                {/* Placeholder routes */}
+                <Route
+                  path="/forgot-password"
+                  element={
+                    <div className="p-8 text-center">
+                      Forgot password page coming soon...
+                    </div>
+                  }
+                />
+                <Route
+                  path="/verify-email-reminder"
+                  element={
+                    <div className="p-8 text-center">
+                      Please verify your email to continue.
+                    </div>
+                  }
+                />
+
+                {/* 404 page */}
+                <Route
+                  path="*"
+                  element={
+                    <div className="p-8 text-center">Page not found</div>
+                  }
+                />
+              </Routes>
+            </div>
+          </Router>
+        </AuthProvider>
       </MantineProvider>
     </QueryProvider>
   );

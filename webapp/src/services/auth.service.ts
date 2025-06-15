@@ -1,5 +1,11 @@
 import api from '../lib/api';
-import type { RegisterData, RegisterResponse } from '../types/auth';
+import type {
+  RegisterData,
+  RegisterResponse,
+  LoginData,
+  LoginResponse,
+  User,
+} from '../types/auth';
 
 export class AuthService {
   /**
@@ -49,6 +55,79 @@ export class AuthService {
         throw new Error(error.response.data.message);
       }
       throw new Error('Failed to resend verification email. Please try again.');
+    }
+  }
+
+  /**
+   * Login user
+   */
+  static async login(data: LoginData): Promise<LoginResponse> {
+    try {
+      const response = await api.post<LoginResponse>('/auth/login', data);
+
+      // Set authorization header for future requests
+      api.defaults.headers.common['Authorization'] =
+        `Bearer ${response.data.access_token}`;
+
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error('Login failed. Please check your credentials.');
+    }
+  }
+
+  /**
+   * Logout user
+   */
+  static async logout(): Promise<void> {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // Ignore logout errors
+    } finally {
+      // Clear authorization header
+      delete api.defaults.headers.common['Authorization'];
+    }
+  }
+
+  /**
+   * Get current user
+   */
+  static async getCurrentUser(): Promise<User> {
+    try {
+      const response = await api.get<User>('/auth/me');
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error('Failed to fetch user data.');
+    }
+  }
+
+  /**
+   * Refresh access token
+   */
+  static async refreshToken(
+    refreshToken: string,
+  ): Promise<{ access_token: string }> {
+    try {
+      const response = await api.post<{ access_token: string }>(
+        '/auth/refresh',
+        {
+          refresh_token: refreshToken,
+        },
+      );
+
+      // Update authorization header
+      api.defaults.headers.common['Authorization'] =
+        `Bearer ${response.data.access_token}`;
+
+      return response.data;
+    } catch {
+      throw new Error('Session expired. Please login again.');
     }
   }
 }

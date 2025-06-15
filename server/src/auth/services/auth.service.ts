@@ -2,7 +2,9 @@ import {
   Injectable,
   ConflictException,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PasswordService } from './password.service';
 import { EmailVerificationService } from './email-verification.service';
@@ -17,6 +19,7 @@ export class AuthService {
     private readonly passwordService: PasswordService,
     private readonly emailVerificationService: EmailVerificationService,
     private readonly logger: LoggingService,
+    private readonly jwtService: JwtService,
   ) {}
 
   /**
@@ -128,5 +131,90 @@ export class AuthService {
     return this.prisma.user.findUnique({
       where: { id },
     });
+  }
+
+  /**
+   * Validate user credentials
+   */
+  async validateUser(email: string, password: string) {
+    const user = await this.findUserByEmail(email);
+    if (!user || !user.password) {
+      return null;
+    }
+
+    const isPasswordValid = await this.passwordService.comparePassword(
+      password,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      return null;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...result } = user;
+    return result;
+  }
+
+  /**
+   * Login user and return JWT tokens
+   */
+  async login(user: any, rememberMe?: boolean) {
+    if (!user.emailVerified) {
+      throw new UnauthorizedException(
+        'Please verify your email before logging in',
+      );
+    }
+
+    const payload = { email: user.email, sub: user.id };
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: '15m',
+    });
+
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: rememberMe ? '30d' : '7d',
+    });
+
+    this.logger.info('User logged in', 'Auth', {
+      userId: user.id,
+      email: user.email,
+      rememberMe: !!rememberMe,
+    });
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        emailVerified: user.emailVerified,
+      },
+    };
+  }
+
+  /**
+   * Refresh access token
+   */
+  async refreshToken(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(refreshToken);
+      const user = await this.findUserById(payload.sub as string);
+
+      if (!user) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      const newPayload = { email: user.email, sub: user.id };
+      const accessToken = this.jwtService.sign(newPayload, {
+        expiresIn: '15m',
+      });
+
+      return {
+        access_token: accessToken,
+      };
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 }
