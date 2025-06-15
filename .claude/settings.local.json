@@ -21,7 +21,9 @@
       "Bash(chmod:*)",
       "Bash(./scripts/lint-server.sh:*)",
       "Bash(node:*)",
-      "Bash(timeout 3s npm run dev:*)"
+      "Bash(timeout 3s npm run dev:*)",
+      "Bash(npx prisma:*)",
+      "Bash(true)"
     ],
     "deny": []
   }

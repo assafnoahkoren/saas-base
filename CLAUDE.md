@@ -25,6 +25,19 @@ npm run test:watch   # Run tests in watch mode
 npm run test:e2e     # Run end-to-end tests
 npm run test:cov     # Run tests with coverage
 npm run repl         # Start interactive REPL
+
+# Prisma Database Commands
+npm run prisma:generate  # Generate Prisma client
+npm run prisma:push      # Push schema to database (dev only)
+npm run prisma:pull      # Pull schema from database
+npm run prisma:migrate   # Create and run migrations
+npm run prisma:studio    # Open Prisma Studio (database GUI)
+npm run prisma:reset     # Reset database and run migrations
+
+# Migration Workflow
+- Use `npm run prisma:migrate` for development changes
+- Migration files are in `prisma/migrations/` and should be committed
+- Database schema is tracked with proper migration history
 ```
 
 ### Webapp (React + Vite)
@@ -45,6 +58,11 @@ npm run preview      # Preview production build
 - Server includes Jest for testing with both unit and e2e test configurations
 - ESLint is configured for both projects with TypeScript support
 - Server includes Prettier for code formatting
+- **Database**: Prisma ORM with PostgreSQL
+  - Schema: `server/prisma/schema.prisma`
+  - Example User and Organization models included
+  - Global PrismaService with logging integration
+  - Transaction support with error handling
 
 ### Logging System
 - **Centralized logging** with Winston + Loki integration
