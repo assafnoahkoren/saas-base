@@ -7,8 +7,20 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
-  // Get the logging service and set it as the default logger
+  // Get services
   const logger = app.get(LoggingService);
+
+  // Enable CORS for frontend communication
+  app.enableCors({
+    origin: true, // Allow any origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  });
+
+  logger.info('CORS enabled for all origins', 'Bootstrap');
+
+  // Set the logging service as the default logger
   app.useLogger(logger);
 
   const port = process.env.PORT ?? 8888;

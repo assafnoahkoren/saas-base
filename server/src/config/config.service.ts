@@ -137,4 +137,8 @@ export class AppConfigService extends ConfigService {
   get isTest(): boolean {
     return this.nodeEnv === 'test';
   }
+
+  get frontendUrl(): string {
+    return this.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+  }
 }

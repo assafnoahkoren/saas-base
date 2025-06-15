@@ -63,6 +63,11 @@ npm run preview      # Preview production build
   - Example User and Organization models included
   - Global PrismaService with logging integration
   - Transaction support with error handling
+- **CORS**: Configured for development (open policy)
+  - Allows any origin (`origin: true`)
+  - Supports all standard HTTP methods
+  - Includes credentials support for authentication
+  - Note: For production, should be restricted to specific domains
 
 ### Logging System
 - **Centralized logging** with Winston + Loki integration
