@@ -1,5 +1,16 @@
 import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import {
+  Container,
+  Paper,
+  Title,
+  Text,
+  Button,
+  Center,
+  Loader,
+  ThemeIcon,
+} from '@mantine/core';
+import { IconCheck, IconX } from '@tabler/icons-react';
 import { useVerifyEmailMutation } from '../api/auth/auth.queries';
 
 export const EmailVerificationPage: React.FC = () => {
@@ -15,88 +26,91 @@ export const EmailVerificationPage: React.FC = () => {
 
   if (verifyMutation.isPending) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Verifying your email...</p>
-        </div>
-      </div>
+      <Container
+        size={420}
+        style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}
+      >
+        <Paper
+          withBorder
+          shadow="md"
+          p={30}
+          radius="md"
+          style={{ width: '100%' }}
+        >
+          <Center>
+            <Loader size="lg" />
+          </Center>
+          <Text ta="center" mt="md" c="dimmed">
+            Verifying your email...
+          </Text>
+        </Paper>
+      </Container>
     );
   }
 
   if (verifyMutation.isError) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-            <svg
-              className="w-8 h-8 text-red-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+      <Container
+        size={420}
+        style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}
+      >
+        <Paper
+          withBorder
+          shadow="md"
+          p={30}
+          radius="md"
+          style={{ width: '100%' }}
+        >
+          <Center>
+            <ThemeIcon color="red" size={60} radius="xl" mb="md">
+              <IconX size={30} stroke={2} />
+            </ThemeIcon>
+          </Center>
+          <Title order={2} ta="center" mb="md">
             Verification Failed
-          </h2>
-          <p className="text-gray-600 mb-6">
+          </Title>
+          <Text c="dimmed" ta="center" mb="lg">
             {verifyMutation.error?.message ||
               'Unable to verify your email. The link may be expired or invalid.'}
-          </p>
-          <div className="space-y-3">
-            <Link
-              to="/register"
-              className="block w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-center"
-            >
-              Back to Registration
-            </Link>
-          </div>
-        </div>
-      </div>
+          </Text>
+          <Button component={Link} to="/register" fullWidth size="md">
+            Back to Registration
+          </Button>
+        </Paper>
+      </Container>
     );
   }
 
   if (verifyMutation.isSuccess) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-            <svg
-              className="w-8 h-8 text-green-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+      <Container
+        size={420}
+        style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}
+      >
+        <Paper
+          withBorder
+          shadow="md"
+          p={30}
+          radius="md"
+          style={{ width: '100%' }}
+        >
+          <Center>
+            <ThemeIcon color="green" size={60} radius="xl" mb="md">
+              <IconCheck size={30} stroke={2} />
+            </ThemeIcon>
+          </Center>
+          <Title order={2} ta="center" mb="md">
             Email Verified!
-          </h2>
-          <p className="text-gray-600 mb-6">
+          </Title>
+          <Text c="dimmed" ta="center" mb="lg">
             Your email has been successfully verified. You can now log in to
             your account.
-          </p>
-          <Link
-            to="/login"
-            className="block w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-center"
-          >
+          </Text>
+          <Button component={Link} to="/login" fullWidth size="md">
             Go to Login
-          </Link>
-        </div>
-      </div>
+          </Button>
+        </Paper>
+      </Container>
     );
   }
 

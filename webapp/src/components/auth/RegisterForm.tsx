@@ -1,14 +1,27 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from '@mantine/form';
+import { zodResolver } from 'mantine-form-zod-resolver';
 import { Link } from 'react-router-dom';
+import {
+  TextInput,
+  PasswordInput,
+  Button,
+  Paper,
+  Title,
+  Text,
+  Container,
+  Stack,
+  Alert,
+  Anchor,
+  Center,
+  ThemeIcon,
+} from '@mantine/core';
+import { IconCheck, IconAlertCircle } from '@tabler/icons-react';
 import {
   registerSchema,
   type RegisterFormData,
 } from '../../lib/validations/auth';
 import { useRegisterMutation } from '../../api/auth/auth.queries';
-import { Input } from '../ui/Input';
-import { Button } from '../ui/Button';
 
 interface RegisterFormProps {
   onSuccess?: (email: string) => void;
@@ -17,21 +30,18 @@ interface RegisterFormProps {
 export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-  } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
+  const form = useForm<RegisterFormData>({
+    initialValues: {
+      email: '',
+      name: '',
+      password: '',
+    },
+    validate: zodResolver(registerSchema),
   });
-
-  const watchedEmail = watch('email');
 
   const registerMutation = useRegisterMutation();
 
-  const onSubmit = async (data: RegisterFormData) => {
-    // Convert empty string to undefined for name
+  const handleSubmit = async (data: RegisterFormData) => {
     const submitData = {
       ...data,
       name: data.name && data.name.trim() ? data.name.trim() : undefined,
@@ -49,116 +59,118 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
 
   if (isSuccess) {
     return (
-      <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-            <svg
-              className="w-8 h-8 text-green-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+      <Container size={460} my={{ base: 20, md: 40 }}>
+        <Paper radius="md" p={{ base: 'md', sm: 'xl' }} withBorder shadow="sm">
+          <Center>
+            <ThemeIcon color="green" size={60} radius="xl" mb="md">
+              <IconCheck size={30} stroke={2} />
+            </ThemeIcon>
+          </Center>
+
+          <Title order={2} ta="center" mb="md">
             Registration Successful!
-          </h2>
-          <p className="text-gray-600 mb-6">
-            We've sent a verification email to <strong>{watchedEmail}</strong>.
-            Please check your inbox and click the verification link to activate
-            your account.
-          </p>
-          <div className="space-y-3">
-            <Link
-              to="/login"
-              className="block w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-center"
-            >
+          </Title>
+
+          <Text c="dimmed" size="sm" ta="center" mb="lg">
+            We've sent a verification email to{' '}
+            <strong>{form.values.email}</strong>. Please check your inbox and
+            click the verification link to activate your account.
+          </Text>
+
+          <Stack>
+            <Button component={Link} to="/login" fullWidth size="md">
               Go to Login
-            </Link>
-            <button
-              onClick={() => setIsSuccess(false)}
-              className="block w-full text-blue-600 hover:text-blue-800 transition-colors"
+            </Button>
+            <Button
+              variant="subtle"
+              fullWidth
+              onClick={() => {
+                setIsSuccess(false);
+                form.reset();
+              }}
             >
               Register Another Account
-            </button>
-          </div>
-        </div>
-      </div>
+            </Button>
+          </Stack>
+        </Paper>
+      </Container>
     );
   }
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-      <div className="mb-6 text-center">
-        <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
-        <p className="text-gray-600 mt-2">Sign up to get started</p>
-      </div>
+    <Container size={420} my={40}>
+      <Title ta="center" size="h2" fw={900}>
+        Create Account
+      </Title>
+      <Text c="dimmed" size="sm" ta="center" mt={5}>
+        Sign up to get started
+      </Text>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <Input
-          label="Email Address"
-          type="email"
-          placeholder="Enter your email"
-          error={errors.email?.message}
-          {...register('email')}
-        />
+      <Paper
+        withBorder
+        shadow="md"
+        p={{ base: 20, sm: 30 }}
+        mt={{ base: 20, sm: 30 }}
+        radius="md"
+      >
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Stack>
+            <TextInput
+              label="Email Address"
+              placeholder="your@email.com"
+              required
+              size="md"
+              {...form.getInputProps('email')}
+            />
 
-        <Input
-          label="Full Name (Optional)"
-          type="text"
-          placeholder="Enter your full name"
-          error={errors.name?.message}
-          {...register('name')}
-        />
+            <TextInput
+              label="Full Name"
+              placeholder="John Doe"
+              size="md"
+              {...form.getInputProps('name')}
+            />
 
-        <Input
-          label="Password"
-          type="password"
-          placeholder="Enter your password"
-          error={errors.password?.message}
-          {...register('password')}
-        />
+            <PasswordInput
+              label="Password"
+              placeholder="Your password"
+              required
+              size="md"
+              description="Password must be at least 6 characters long"
+              {...form.getInputProps('password')}
+            />
 
-        <div className="text-xs text-gray-500">
-          Password must be at least 6 characters long
-        </div>
+            {registerMutation.isError && (
+              <Alert
+                icon={<IconAlertCircle size={16} />}
+                title="Registration failed"
+                color="red"
+                variant="light"
+              >
+                {registerMutation.error?.message || 'Registration failed'}
+              </Alert>
+            )}
 
-        {registerMutation.isError && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-600">
-              {registerMutation.error?.message || 'Registration failed'}
-            </p>
-          </div>
-        )}
+            <Button
+              fullWidth
+              mt="xl"
+              type="submit"
+              size="md"
+              loading={registerMutation.isPending}
+            >
+              {registerMutation.isPending
+                ? 'Creating Account...'
+                : 'Create Account'}
+            </Button>
+          </Stack>
+        </form>
 
-        <Button
-          type="submit"
-          isLoading={registerMutation.isPending}
-          className="w-full"
-        >
-          {registerMutation.isPending
-            ? 'Creating Account...'
-            : 'Create Account'}
-        </Button>
-      </form>
-
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
+        <Text c="dimmed" size="sm" ta="center" mt="md">
           Already have an account?{' '}
-          <Link
-            to="/login"
-            className="text-blue-600 hover:text-blue-800 font-medium"
-          >
+          <Anchor component={Link} to="/login" fw={700}>
             Sign in
-          </Link>
-        </p>
-      </div>
-    </div>
+          </Anchor>
+        </Text>
+      </Paper>
+    </Container>
   );
 };

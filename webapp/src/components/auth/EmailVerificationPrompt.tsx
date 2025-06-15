@@ -1,6 +1,7 @@
 import React from 'react';
+import { Button, Text, Title, Stack, Alert } from '@mantine/core';
+import { IconCheck } from '@tabler/icons-react';
 import { useResendVerificationMutation } from '../../api/auth/auth.queries';
-import { Button } from '../ui/Button';
 
 interface EmailVerificationPromptProps {
   email: string;
@@ -16,42 +17,42 @@ export const EmailVerificationPrompt: React.FC<
   };
 
   return (
-    <div className="text-center p-6">
-      <h3 className="text-lg font-semibold mb-4">Check Your Email</h3>
-      <p className="text-gray-600 mb-6">
+    <Stack align="center" p="xl">
+      <Title order={3}>Check Your Email</Title>
+      <Text c="dimmed" ta="center">
         We've sent a verification email to <strong>{email}</strong>. Please
         check your inbox and click the verification link.
-      </p>
+      </Text>
 
-      <div className="space-y-4">
-        <div className="text-sm text-gray-500">
-          {resendMutation.isSuccess ? (
-            <p className="text-green-600">
-              Verification email sent successfully!
-            </p>
-          ) : (
-            <p>Didn't receive the email?</p>
-          )}
-        </div>
+      <Stack align="center" mt="lg">
+        {resendMutation.isSuccess ? (
+          <Alert icon={<IconCheck size={16} />} color="green" variant="light">
+            Verification email sent successfully!
+          </Alert>
+        ) : (
+          <Text size="sm" c="dimmed">
+            Didn't receive the email?
+          </Text>
+        )}
 
         {resendMutation.isError && (
-          <p className="text-sm text-red-600">
+          <Alert color="red" variant="light">
             {resendMutation.error?.message || 'Failed to resend email'}
-          </p>
+          </Alert>
         )}
 
         <Button
           onClick={handleResend}
-          isLoading={resendMutation.isPending}
+          loading={resendMutation.isPending}
           disabled={resendMutation.isSuccess}
-          variant="outline"
+          variant="light"
           size="sm"
         >
           {resendMutation.isPending
             ? 'Sending...'
             : 'Resend Verification Email'}
         </Button>
-      </div>
-    </div>
+      </Stack>
+    </Stack>
   );
 };
