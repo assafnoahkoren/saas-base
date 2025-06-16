@@ -15,6 +15,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   logout: () => Promise<void>;
+  setAuthenticated: (value: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -74,23 +75,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
-  // Set authorization header if token exists
+  // Check if user is authenticated on mount
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setIsAuthenticated(true);
-    }
+    setIsAuthenticated(!!token);
   }, []);
 
   // Query for current user
-  const { data: user, isLoading } = useQuery({
+  const {
+    data: user,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['user', 'current'],
     queryFn: AuthService.getCurrentUser,
     enabled: isAuthenticated,
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
   });
+
+  // Handle authentication error
+  useEffect(() => {
+    if (isError && isAuthenticated) {
+      // Token is invalid, clear everything
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      setIsAuthenticated(false);
+      queryClient.clear();
+    }
+  }, [isError, isAuthenticated, queryClient]);
 
   const logout = useCallback(async () => {
     try {
@@ -98,7 +113,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
-      delete api.defaults.headers.common['Authorization'];
       setIsAuthenticated(false);
       queryClient.clear();
       window.location.href = '/login';
@@ -107,9 +121,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value: AuthContextType = {
     user: user || null,
-    isLoading,
-    isAuthenticated: isAuthenticated && !!user,
+    isLoading: isLoading || (isAuthenticated && !user && !isError),
+    isAuthenticated: isAuthenticated && !!user && !isError,
     logout,
+    setAuthenticated: setIsAuthenticated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

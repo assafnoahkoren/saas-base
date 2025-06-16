@@ -10,11 +10,11 @@ export const api = axios.create({
   timeout: 10000,
 });
 
-// Request interceptor for adding auth tokens (will be used later)
+// Request interceptor for adding auth tokens
 api.interceptors.request.use(
   (config) => {
     // Add auth token from localStorage if available
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -29,11 +29,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle 401 unauthorized errors
-    if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token');
-      window.location.href = '/login';
-    }
+    // Don't handle 401 here - let AuthContext handle it
     return Promise.reject(error);
   },
 );

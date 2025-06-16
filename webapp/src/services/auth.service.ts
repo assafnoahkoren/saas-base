@@ -65,10 +65,6 @@ export class AuthService {
     try {
       const response = await api.post<LoginResponse>('/auth/login', data);
 
-      // Set authorization header for future requests
-      api.defaults.headers.common['Authorization'] =
-        `Bearer ${response.data.access_token}`;
-
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.message) {
@@ -87,8 +83,7 @@ export class AuthService {
     } catch {
       // Ignore logout errors
     } finally {
-      // Clear authorization header
-      delete api.defaults.headers.common['Authorization'];
+      // Logout handled
     }
   }
 
@@ -120,10 +115,6 @@ export class AuthService {
           refresh_token: refreshToken,
         },
       );
-
-      // Update authorization header
-      api.defaults.headers.common['Authorization'] =
-        `Bearer ${response.data.access_token}`;
 
       return response.data;
     } catch {

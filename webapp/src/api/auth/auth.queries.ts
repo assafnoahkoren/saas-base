@@ -49,6 +49,9 @@ export const useLoginMutation = () => {
 
       // Invalidate and refetch any user queries
       queryClient.invalidateQueries({ queryKey: ['user'] });
+
+      // Trigger a refetch of the current user
+      queryClient.refetchQueries({ queryKey: ['user', 'current'] });
     },
   });
 };

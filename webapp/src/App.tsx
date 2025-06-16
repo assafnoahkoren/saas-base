@@ -8,6 +8,7 @@ import { QueryProvider } from './providers/QueryProvider';
 import { MantineProvider } from './providers/MantineProvider';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { PublicRoute } from './components/PublicRoute';
 import { RegisterPage } from './pages/RegisterPage';
 import { LoginPage } from './pages/LoginPage';
 import { EmailVerificationPage } from './pages/EmailVerificationPage';
@@ -29,8 +30,22 @@ function App() {
                 />
 
                 {/* Public auth routes */}
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+                <Route
+                  path="/login"
+                  element={
+                    <PublicRoute>
+                      <LoginPage />
+                    </PublicRoute>
+                  }
+                />
+                <Route
+                  path="/register"
+                  element={
+                    <PublicRoute>
+                      <RegisterPage />
+                    </PublicRoute>
+                  }
+                />
                 <Route
                   path="/verify-email/:token"
                   element={<EmailVerificationPage />}

@@ -19,9 +19,11 @@ import {
 import { IconAlertCircle } from '@tabler/icons-react';
 import { loginSchema, type LoginFormData } from '../../lib/validations/login';
 import { useLoginMutation } from '../../api/auth/auth.queries';
+import { useAuth } from '../../hooks/useAuth';
 
 export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const { setAuthenticated } = useAuth();
 
   const form = useForm<LoginFormData>({
     initialValues: {
@@ -37,7 +39,11 @@ export const LoginForm: React.FC = () => {
   const handleSubmit = async (data: LoginFormData) => {
     loginMutation.mutate(data, {
       onSuccess: () => {
-        navigate('/dashboard');
+        setAuthenticated(true);
+        // Small delay to ensure auth state is updated
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 100);
       },
     });
   };
