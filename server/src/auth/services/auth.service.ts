@@ -11,6 +11,10 @@ import { EmailVerificationService } from './email-verification.service';
 import { LoggingService } from '../../logging/logging.service';
 import { RegisterDto } from '../dto/register.dto';
 import { RegisterResponse } from '../interfaces/auth.interface';
+import {
+  AuthenticatedUser,
+  JwtPayload,
+} from '../interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -159,14 +163,14 @@ export class AuthService {
   /**
    * Login user and return JWT tokens
    */
-  async login(user: any, rememberMe?: boolean) {
+  login(user: AuthenticatedUser, rememberMe?: boolean) {
     if (!user.emailVerified) {
       throw new UnauthorizedException(
         'Please verify your email before logging in',
       );
     }
 
-    const payload = { email: user.email, sub: user.id };
+    const payload: JwtPayload = { email: user.email, sub: user.id };
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: '15m',
     });
@@ -187,7 +191,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        name: user.name || undefined,
         emailVerified: user.emailVerified,
       },
     };
@@ -198,14 +202,14 @@ export class AuthService {
    */
   async refreshToken(refreshToken: string) {
     try {
-      const payload = this.jwtService.verify(refreshToken);
-      const user = await this.findUserById(payload.sub as string);
+      const payload = this.jwtService.verify<JwtPayload>(refreshToken);
+      const user = await this.findUserById(payload.sub);
 
       if (!user) {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      const newPayload = { email: user.email, sub: user.id };
+      const newPayload: JwtPayload = { email: user.email, sub: user.id };
       const accessToken = this.jwtService.sign(newPayload, {
         expiresIn: '15m',
       });

@@ -20,6 +20,7 @@ import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Public } from '../decorators/public.decorator';
 import { CurrentUser } from '../decorators/current-user.decorator';
+import { AuthenticatedUser } from '../interfaces/jwt-payload.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -87,10 +88,13 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @Log({ logLevel: 'info', includeArgs: false, includeResult: false })
-  async login(@Request() req: any, @Body() loginDto: LoginDto) {
+  login(
+    @Request() req: Express.Request & { user: AuthenticatedUser },
+    @Body() loginDto: LoginDto,
+  ) {
     this.logger.info('User login successful', 'AuthController', {
-      userId: req.user.id as string,
-      email: req.user.email as string,
+      userId: req.user.id,
+      email: req.user.email,
       rememberMe: !!loginDto.rememberMe,
     });
 
@@ -119,8 +123,8 @@ export class AuthController {
   @Get('me')
   @HttpCode(HttpStatus.OK)
   @Log({ logLevel: 'info', includeArgs: false, includeResult: true })
-  async getCurrentUser(@CurrentUser() user: any) {
-    const fullUser = await this.authService.findUserById(user.id as string);
+  async getCurrentUser(@CurrentUser() user: AuthenticatedUser) {
+    const fullUser = await this.authService.findUserById(user.id);
 
     if (!fullUser) {
       throw new BadRequestException('User not found');
@@ -139,10 +143,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Log({ logLevel: 'info', includeArgs: false, includeResult: false })
   // eslint-disable-next-line @typescript-eslint/require-await
-  async logout(@CurrentUser() user: any) {
+  async logout(@CurrentUser() user: AuthenticatedUser) {
     this.logger.info('User logged out', 'AuthController', {
-      userId: user.id as string,
-      email: user.email as string,
+      userId: user.id,
+      email: user.email,
     });
 
     return { message: 'Logout successful' };
