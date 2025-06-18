@@ -6,4 +6,5 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   logout: () => Promise<void>;
   setAuthenticated: (value: boolean) => void;
+  refetchUser?: () => void;
 }

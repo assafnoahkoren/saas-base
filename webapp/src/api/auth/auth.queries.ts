@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AuthService } from '../../services/auth.service';
+import api from '../../lib/api';
 import type {
   RegisterData,
   RegisterResponse,
@@ -47,6 +48,10 @@ export const useLoginMutation = () => {
       localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('refresh_token', data.refresh_token);
 
+      // Update axios default headers immediately
+      api.defaults.headers.common['Authorization'] =
+        `Bearer ${data.access_token}`;
+
       // Invalidate and refetch any user queries
       queryClient.invalidateQueries({ queryKey: ['user'] });
 
@@ -68,6 +73,9 @@ export const useLogoutMutation = () => {
       // Clear tokens
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
+
+      // Clear axios default headers
+      delete api.defaults.headers.common['Authorization'];
 
       // Clear all queries
       queryClient.clear();

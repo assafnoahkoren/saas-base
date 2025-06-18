@@ -29,13 +29,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               const { access_token } =
                 await AuthService.refreshToken(refreshToken);
               localStorage.setItem('access_token', access_token);
+              // Update the Authorization header
               originalRequest.headers['Authorization'] =
+                `Bearer ${access_token}`;
+              // Also update the default headers for future requests
+              api.defaults.headers.common['Authorization'] =
                 `Bearer ${access_token}`;
               return api(originalRequest);
             } catch (refreshError) {
               // Refresh failed, clear tokens and redirect to login
               localStorage.removeItem('access_token');
               localStorage.removeItem('refresh_token');
+              delete api.defaults.headers.common['Authorization'];
               setIsAuthenticated(false);
               window.location.href = '/login';
               return Promise.reject(refreshError);
@@ -55,7 +60,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Check if user is authenticated on mount
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    setIsAuthenticated(!!token);
+    if (token) {
+      // Set default headers if token exists
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
   }, []);
 
   // Query for current user
@@ -63,11 +74,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     data: user,
     isLoading,
     isError,
+    refetch,
   } = useQuery({
     queryKey: ['user', 'current'],
     queryFn: AuthService.getCurrentUser,
     enabled: isAuthenticated,
-    retry: false,
+    retry: 1, // Allow one retry to handle initial token setup
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
     refetchOnMount: true,
@@ -79,6 +91,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Token is invalid, clear everything
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
+      delete api.defaults.headers.common['Authorization'];
       setIsAuthenticated(false);
       queryClient.clear();
     }
@@ -90,6 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
+      delete api.defaults.headers.common['Authorization'];
       setIsAuthenticated(false);
       queryClient.clear();
       window.location.href = '/login';
@@ -102,6 +116,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: isAuthenticated && !!user && !isError,
     logout,
     setAuthenticated: setIsAuthenticated,
+    refetchUser: refetch,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
