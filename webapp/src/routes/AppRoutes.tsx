@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { PublicRoute } from '../components/PublicRoute';
 import { ProtectedRoute } from '../components/ProtectedRoute';
+import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { LoginPage } from '../pages/LoginPage';
 import { RegisterPage } from '../pages/RegisterPage';
 import { EmailVerificationPage } from '../pages/EmailVerificationPage';
@@ -58,7 +59,9 @@ export const AppRoutes = () => {
       <Route
         element={
           <ProtectedRoute>
-            <Outlet />
+            <DashboardLayout>
+              <Outlet />
+            </DashboardLayout>
           </ProtectedRoute>
         }
       >
